@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "configuration",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}/main.py",
+            "console": "externalTerminal",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceRoot}/credentials.json"
+            }
+        }
+    ]
+}
