@@ -9,7 +9,7 @@ def text_detection(blob):
     image = vision.types.Image(content=blob)
     return client.text_detection(image=image)
 
-def parse_detected_front_text(detected_front_text):
+def parse_detected_front_text(detected_front_text, debug=False):
     municipality_match = re.search(r"MUNICIPALITY\n([A-Z]+)", detected_front_text)
     if municipality_match:
         municipality = municipality_match.group(1)
@@ -70,7 +70,7 @@ def parse_detected_front_text(detected_front_text):
     else:
         issue_date = None
 
-    return {
+    parsed_detected_front_text = {
         "municipality": municipality,
         "last_name": last_name,
         "first_name": first_name,
@@ -82,6 +82,11 @@ def parse_detected_front_text(detected_front_text):
         "expiration_date": expiration_date,
         "issue_date": issue_date,
     }
+
+    if debug:
+        parsed_detected_front_text["full_text_annotations:text"] = detected_front_text
+
+    return parsed_detected_front_text
 
 app = Flask(__name__)
 
@@ -102,7 +107,9 @@ def post_front():
     content = request.data
     vision_api_response = text_detection(content)
     detected_front_text = vision_api_response.full_text_annotation.text
-    parsed_detected_front_text = parse_detected_front_text(detected_front_text)
+    query_param_debug = request.args.get("debug") and request.args.get("debug").lower()
+    debug = query_param_debug in ["true", "1", "t"]
+    parsed_detected_front_text = parse_detected_front_text(detected_front_text, debug=debug)
     return jsonify(parsed_detected_front_text)
 
 if __name__ == "__main__":
